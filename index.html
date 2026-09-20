@@ -69,12 +69,15 @@
   <section>
     <h2>Version audio</h2>
     <p>Chaque mot en français, deux secondes pour deviner, puis l'allemand deux fois. Coche « en boucle » et laisse tourner dans les écouteurs.</p>
-    <audio id="vocab-audio" controls preload="metadata" src="vocab_kapitel1_fr-de.mp3" style="width:100%;margin-top:8px"></audio>
+    <p style="margin:14px 0 4px"><strong>Les 37 mots qui restent à apprendre</strong> (5 min)</p>
+    <audio class="vocab-audio" controls preload="metadata" src="vocab_kapitel1_reste_fr-de.mp3" style="width:100%"></audio>
+    <p style="margin:14px 0 4px"><strong>Les 60 mots du chapitre</strong> (9 min)</p>
+    <audio class="vocab-audio" controls preload="metadata" src="vocab_kapitel1_fr-de.mp3" style="width:100%"></audio>
     <label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="loop-toggle" checked> En boucle</label>
-    <p style="margin-top:10px"><a href="vocab_kapitel1_fr-de.mp3" download>Télécharger le MP3</a> (4 min 50, 3,4 Mo) pour l'ajouter à ta musique.</p>
+    <p style="margin-top:10px">Télécharger : <a href="vocab_kapitel1_reste_fr-de.mp3" download>37 mots</a> · <a href="vocab_kapitel1_fr-de.mp3" download>60 mots</a></p>
     <script>
-      var a=document.getElementById('vocab-audio'),t=document.getElementById('loop-toggle');
-      a.loop=t.checked; t.addEventListener('change',function(){a.loop=t.checked;});
+      var t=document.getElementById('loop-toggle'),as=document.querySelectorAll('.vocab-audio');
+      function L(){as.forEach(function(a){a.loop=t.checked;});} L(); t.addEventListener('change',L);
     </script>
   </section>
 

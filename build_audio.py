@@ -15,7 +15,9 @@ import urllib.request
 from pathlib import Path
 
 name = sys.argv[1] if len(sys.argv) > 1 else "kapitel1"
-SPOKEN = importlib.import_module(f"spoken_{name}").SPOKEN
+mod = importlib.import_module(f"spoken_{name}")
+SPOKEN = mod.SPOKEN
+CLIPS_FROM = getattr(mod, "CLIPS_FROM", name)  # réutiliser les clips d'une autre liste
 
 KEY = next(l.split("=", 1)[1].strip() for l in open(os.path.expanduser("~/Documents/capinter-video-ads/.env"))
            if l.startswith("ELEVENLABS_API_KEY="))
@@ -24,7 +26,7 @@ VOICES = {"fr": "ICk609TItINMseDpChFt",  # Léa formatrice – ton posé et péd
 MODEL = "eleven_flash_v2_5"  # accepte language_code
 PAUSE_GUESS, PAUSE_REPEAT, PAUSE_NEXT = 2.0, 0.7, 1.6
 
-clips = Path("clips") / name
+clips = Path("clips") / CLIPS_FROM
 clips.mkdir(parents=True, exist_ok=True)
 
 
@@ -47,6 +49,14 @@ def silence(sec, path):
                         "-t", str(sec), path], check=True)
 
 
+def to_wav(mp3):
+    """Décode le clip en wav 44.1k mono (même format que les silences, sinon ffmpeg concat les perd)."""
+    wav = mp3.with_suffix(".wav")
+    if not wav.exists():
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-i", mp3, "-ar", "44100", "-ac", "1", wav], check=True)
+    return wav
+
+
 sil = {}
 for tag, sec in (("guess", PAUSE_GUESS), ("repeat", PAUSE_REPEAT), ("next", PAUSE_NEXT)):
     p = clips / f"sil_{tag}.wav"
@@ -54,11 +64,13 @@ for tag, sec in (("guess", PAUSE_GUESS), ("repeat", PAUSE_REPEAT), ("next", PAUS
     sil[tag] = p
 
 order = []
-for i, (fr, de) in enumerate(SPOKEN, 1):
+for entry in SPOKEN:
+    i, fr, de = entry if len(entry) == 3 else (SPOKEN.index(entry) + 1, *entry)
     f_fr, f_de = clips / f"{i:02d}_fr.mp3", clips / f"{i:02d}_de.mp3"
     tts(fr, "fr", f_fr)
     tts(de, "de", f_de)
-    order += [f_fr, sil["guess"], f_de, sil["repeat"], f_de, sil["next"]]
+    w_fr, w_de = to_wav(f_fr), to_wav(f_de)
+    order += [w_fr, sil["guess"], w_de, sil["repeat"], w_de, sil["next"]]
 
 # concat : décodage en wav mono 44.1k puis encodage mp3
 lst = clips / "concat.txt"
