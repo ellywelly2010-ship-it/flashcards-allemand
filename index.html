@@ -67,6 +67,18 @@
   </div>
 
   <section>
+    <h2>Version audio</h2>
+    <p>Chaque mot en français, deux secondes pour deviner, puis l'allemand deux fois. Coche « en boucle » et laisse tourner dans les écouteurs.</p>
+    <audio id="vocab-audio" controls preload="metadata" src="vocab_kapitel1_fr-de.mp3" style="width:100%;margin-top:8px"></audio>
+    <label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="loop-toggle" checked> En boucle</label>
+    <p style="margin-top:10px"><a href="vocab_kapitel1_fr-de.mp3" download>Télécharger le MP3</a> (4 min 50, 3,4 Mo) pour l'ajouter à ta musique.</p>
+    <script>
+      var a=document.getElementById('vocab-audio'),t=document.getElementById('loop-toggle');
+      a.loop=t.checked; t.addEventListener('change',function(){a.loop=t.checked;});
+    </script>
+  </section>
+
+  <section>
     <h2>Comment l'imprimer</h2>
     <ol>
       <li>Ouvre le PDF et lance l'impression.</li>
